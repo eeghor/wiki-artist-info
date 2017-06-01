@@ -2,6 +2,7 @@ import discogs_client
 import pprint
 import json
 import time
+import sys
 from collections import defaultdict
 
  # 60 requests per minute if auntheticated
@@ -27,19 +28,20 @@ collected_data = []
 
 t0 = time.time()
 
-for j, artist_name in enumerate(list(artists.keys())[:5]):
+artist_list = [a for a in list(artists.keys()) if not (set(a.split()) & {"hits", "greatest", "choir"})]
+print(len(artist_list))
+
+for j, artist_name in enumerate(artist_list[:500]):
 
 	print("artist {}: {}...".format(j+1, artist_name), end="")
 
-	res = d.search(artist_name, type="artist")  # iterator containing artist objects
-	time.sleep(2)
-
 	try:
-		a = res[0]  # top search result
+		res = d.search(artist_name, type="artist")  # iterator containing artist objects
 	except:
 		print("failed")
 		continue  # just take next artist
 
+	time.sleep(1)
 	art_dict = defaultdict()
 
 	try:
@@ -57,23 +59,28 @@ for j, artist_name in enumerate(list(artists.keys())[:5]):
 	art_dict["social"] = {}
 	art_dict["albums"] = []
 
-	for u in a.urls:
-		if "facebook" in u:
-			art_dict["social"].update({"facebook": u})
-		elif "twitter" in u:
-			art_dict["social"].update({"twitter": u})
-		elif "youtube" in u:
-			art_dict["social"].update({"youtube": u})
-		elif "wikipedia" in u:
-			art_dict["social"].update({"wikipedia": u})
-		elif "soundcloud" in u:
-			art_dict["social"].update({"soundcloud": u})
-		elif "equipboard" in u:
-			art_dict["social"].update({"equiboard": u})
-		elif "instagram" in u:
-			art_dict["social"].update({"instagram": u})
-		else:
-			art_dict["social"].update({"other": u})
+	if a.urls:
+
+		for u in a.urls:
+			if "facebook" in u:
+				art_dict["social"].update({"facebook": u})
+			elif "twitter" in u:
+				art_dict["social"].update({"twitter": u})
+			elif "youtube" in u:
+				art_dict["social"].update({"youtube": u})
+			elif "wikipedia" in u:
+				art_dict["social"].update({"wikipedia": u})
+			elif "soundcloud" in u:
+				art_dict["social"].update({"soundcloud": u})
+			elif "equipboard" in u:
+				art_dict["social"].update({"equiboard": u})
+			elif "instagram" in u:
+				art_dict["social"].update({"instagram": u})
+			else:
+				if "other" not in art_dict["social"]:
+					art_dict["social"].update({"other": [u]})
+				else:
+					art_dict["social"]["other"].append(u)
 	# now browse releases
 	for r in a.releases:
 
