@@ -49,7 +49,7 @@ t0 = time.time()
 
 artist_list = [a for a in list(artists.keys()) if not (set(a.split()) & {"hits", "greatest", "choir", "collection"})]
 
-for j, artist_name in enumerate(artist_list):
+for j, artist_name in enumerate(artist_list[650:656]):
 
 	print("artist {}/{}: {}...".format(j+1, total_artists, artist_name), end="")
 
@@ -138,17 +138,20 @@ for j, artist_name in enumerate(artist_list):
 			print("note: {} releases without data so far!", count_nodata)
 			continue
 		# if there is some data..
-		if ((release_data["type"] in {"release", "master"}) and
-					(release_data["role"] == "Main") and
-						(len(r.tracklist) > 6)):   # then we assume it's an album
-			art_dict["albums"].append(
-				{
-				"title": release_data["title"].lower(),
-				"year": release_data["year"],
-				"tracklist": [{"#": track.data["position"],
-								"title": track.data["title"].lower(),
-								"duration": track.data["duration"]} for track in r.tracklist]
-				})
+		try:
+			if ((release_data["type"] in {"release", "master"}) and
+						(release_data["role"] == "Main") and
+							(len(r.tracklist) > 6)):   # then we assume it's an album
+				art_dict["albums"].append(
+					{
+					"title": release_data["title"].lower(),
+					"year": release_data["year"],
+					"tracklist": [{"#": track.data["position"],
+									"title": track.data["title"].lower(),
+									"duration": track.data["duration"]} for track in r.tracklist]
+					})
+		except:
+			continue
 
 	# add this artist's info to the list
 	collected_data.append(art_dict)
