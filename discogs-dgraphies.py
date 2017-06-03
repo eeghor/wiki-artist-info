@@ -49,7 +49,7 @@ t0 = time.time()
 
 artist_list = [a for a in list(artists.keys()) if not (set(a.split()) & {"hits", "greatest", "choir", "collection"})]
 
-for j, artist_name in enumerate(artist_list[650:656]):
+for j, artist_name in enumerate(artist_list):
 
 	print("artist {}/{}: {}...".format(j+1, total_artists, artist_name), end="")
 
