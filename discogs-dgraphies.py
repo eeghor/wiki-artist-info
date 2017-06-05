@@ -11,6 +11,9 @@ SLEEPSEC = 0.5
 SAVE_EVERY = 1000
 
 def _get_time():
+	"""
+	return elapsed time as hours, minutes and seconds
+	"""
 
 	ttup = divmod(time.time() - t0, 3600)
 	mins, secs = divmod(ttup[1], 60)
@@ -18,6 +21,9 @@ def _get_time():
 	return (ttup[0], mins, secs)
 
 def _do_search(artist_name, rtry=0):
+	"""
+	submit artist search request
+	"""
 
 	try:
 		res = d.search(artist_name, type="artist") 
@@ -131,8 +137,8 @@ for j, artist_name in enumerate(artist_list):
 		count_nodata = 0
 
 		try:
-			release_data = r.data
 			time.sleep(SLEEPSEC)
+			release_data = r.data
 		except AttributeError:
 			count_nodata += 1
 			print("note: {} releases without data so far!", count_nodata)
@@ -162,5 +168,6 @@ for j, artist_name in enumerate(artist_list):
 	tp = divmod(j, SAVE_EVERY)
 
 	if (j > 0) and (tp[1] == 0):
-		json.dump(collected_data[SAVE_EVERY*(tp[0]-1):SAVE_EVERY*tp[0]], open("data/AD{}.json".format(tp[0]), "w"), sort_keys=False, indent=4)
+		json.dump(collected_data[SAVE_EVERY*(tp[0]-1):SAVE_EVERY*tp[0]], open("data/AD{}.json".format(tp[0]), "w"), 
+			sort_keys=False, indent=4)
 
