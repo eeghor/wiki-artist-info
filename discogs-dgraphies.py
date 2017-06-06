@@ -8,7 +8,7 @@ from collections import defaultdict
 
  # 60 requests per minute if auntheticated
 SLEEPSEC = 0.5
-SAVE_EVERY = 1000
+SAVE_EVERY = 500
 
 def _get_time():
 	"""
@@ -38,6 +38,25 @@ def _do_search(artist_name, rtry=0):
 	except:
 		return None
 	return res
+
+def _request_data(release, rtry=0):
+	"""
+	submit release data request
+	"""
+	try:
+		res = release.data
+		# res is discogs_client.models.MixedPaginatedList
+	except HTTPError as e:
+		if (e.status_code == 429) and (rtry < 6):   # sending requests too quickly
+			time.sleep(3)
+			rtry += 1
+			_request_data(release, rtry + 1)
+		else:
+			return None
+	except:
+		return None
+	return res
+
 
 
 artists = json.load(open("data/artists.json","r"))
@@ -136,13 +155,10 @@ for j, artist_name in enumerate(artist_list):
 
 		count_nodata = 0
 
-		try:
-			time.sleep(SLEEPSEC)
-			release_data = r.data
-		except AttributeError:
-			count_nodata += 1
-			print("note: {} releases without data so far!", count_nodata)
-			continue
+		time.sleep(SLEEPSEC)
+
+		release_data = _request_data(r)
+
 		# if there is some data..
 		try:
 			if ((release_data["type"] in {"release", "master"}) and
