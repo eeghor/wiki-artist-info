@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 
  # 60 requests per minute if auntheticated
-SLEEPSEC = 0.5
+SLEEPSEC = 1
 SAVE_EVERY = 500
 
 def _get_time():
