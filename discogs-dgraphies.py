@@ -30,7 +30,7 @@ def _do_search(artist_name, rtry=0):
 		# res is discogs_client.models.MixedPaginatedList
 	except HTTPError as e:
 		if (e.status_code == 429) and (rtry < 6):   # sending requests too quickly
-			time.sleep(3)
+			time.sleep(10)
 			rtry += 1
 			_do_search(artist_name, rtry + 1)
 		else:
@@ -48,7 +48,7 @@ def _request_data(release, rtry=0):
 		# res is discogs_client.models.MixedPaginatedList
 	except HTTPError as e:
 		if (e.status_code == 429) and (rtry < 6):   # sending requests too quickly
-			time.sleep(3)
+			time.sleep(60)
 			rtry += 1
 			_request_data(release, rtry + 1)
 		else:
