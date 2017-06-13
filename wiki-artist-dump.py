@@ -38,8 +38,6 @@ artist_lst = []
 c = 0
 
 for ev, a in et.iterparse('data/discogs_20170601_artists.xml', events=("start", "end")):
-    
-    c += 1
 
     if (a.tag == "artist") and (ev == "end"):
         
@@ -79,13 +77,19 @@ for ev, a in et.iterparse('data/discogs_20170601_artists.xml', events=("start", 
                         art_dict[urls_labl].update({"other": [u]})
                     else:
                         art_dict[urls_labl]["other"].append(u)
+        else:
+            continue  # no media - we aren't interested; next
+
+        if len(art_dict["media"]) == 1 and ("other" in art_dict["media"]):
+            continue
         
         artist_lst.append(art_dict)
-        a.clear()
 
-        if c%100 == 0:
-            print("artist so far: {}".format(len(artist_lst)))
+        if len(artist_lst) == 20000:
 
-        if len(artist_lst) == 5000:
-            json.dump(artist_lst, open("data/AD{}.json".format(tp[0]), "w"), sort_keys=False, indent=4)
+            c += 1
+            json.dump(artist_lst, open("data/AD{:.0f}.json".format(c), "w"), sort_keys=False, indent=4)
             artist_lst = []
+
+if artist_lst:
+    json.dump(artist_lst, open("data/AD{:.0f}.json".format(c + 1), "w"), sort_keys=False, indent=4)
