@@ -3,8 +3,6 @@ from collections import defaultdict
 import json
 import sys
 
-required_artists = ["aerosmith", "alicia keys"]
-
 def __get_artist_info(artist_elem):
 
 	artist_rec = {}
@@ -125,6 +123,9 @@ def __get_track_list(rel_elem):
 	except:
 		return None
 
+release_db = []
+c = 0
+
 for ev, elem in et.iterparse('data/discogs_20170601_releases.xml', events=("start", "end")):
 
 	"""
@@ -134,6 +135,7 @@ for ev, elem in et.iterparse('data/discogs_20170601_releases.xml', events=("star
 	if (elem.tag == "release") and (ev == "end"):  # effectively this means that info on some release has been fully read
 
 		release_info = defaultdict()
+
 		release_info["artists"] = __get_release_artists(elem, artist_or_extra="artist")
 		release_info["extra_artists"] = __get_release_artists(elem, artist_or_extra="extra_artist")
 		release_info["labels"] = __get_record_labels(elem)
@@ -143,6 +145,15 @@ for ev, elem in et.iterparse('data/discogs_20170601_releases.xml', events=("star
 		release_info["tracklist"] = __get_track_list(elem)
 
 
-		print(release_info)
+		if release_info["tracklist"] and (len(release_info["tracklist"]) > 6):
+			release_db.append(release_info)
 
-		#sys.exit(0)
+		if len(release_db) == 20000:
+			c += 1
+			json.dump(release_db, open("data/AR{:.0f}.json".format(c), "w"), sort_keys=False, indent=4)
+			release_db = []
+
+		elem.clear()
+
+if release_db:
+    json.dump(release_db, open("data/AR{:.0f}.json".format(c + 1), "w"), sort_keys=False, indent=4)
